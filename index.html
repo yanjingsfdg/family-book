@@ -265,6 +265,7 @@
 
     <div class="panel">
       <h2>账目记录</h2>
+      <button type="button" id="exportButton" style="margin-bottom: 12px;">导出备份</button>
       <div id="recordList"></div>
     </div>
   </div>
@@ -380,6 +381,33 @@
       amountInput.value = "";
       noteInput.value = "";
       amountInput.focus();
+    });
+
+    document.getElementById("exportButton").addEventListener("click", function () {
+      if (records.length === 0) {
+        alert("还没有账目可以备份。");
+        return;
+      }
+
+      const backup = {
+        app: "家庭记账本",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        records: records
+      };
+
+      const fileContent = JSON.stringify(backup, null, 2);
+      const file = new Blob([fileContent], { type: "application/json" });
+      const downloadUrl = URL.createObjectURL(file);
+      const link = document.createElement("a");
+      const today = new Date().toISOString().slice(0, 10);
+
+      link.href = downloadUrl;
+      link.download = "家庭记账本备份_" + today + ".json";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(downloadUrl);
     });
 
     showRecords();

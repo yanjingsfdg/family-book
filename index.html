@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家庭记账本</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f3f6f9;
+      color: #333;
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: auto;
+    }
+
+    h1 {
+      margin: 10px 0 6px;
+      text-align: center;
+      color: #2c7a5a;
+    }
+
+    .subtitle {
+      margin-bottom: 22px;
+      text-align: center;
+      color: #777;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .summary-card,
+    .panel {
+      padding: 18px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .summary-card {
+      text-align: center;
+    }
+
+    .summary-card span {
+      display: block;
+      margin-bottom: 8px;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .summary-card strong {
+      font-size: 21px;
+    }
+
+    .income {
+      color: #16865c;
+    }
+
+    .expense {
+      color: #e05252;
+    }
+
+    .balance {
+      color: #2878c8;
+    }
+
+    .panel {
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccd3da;
+      border-radius: 9px;
+      font-size: 16px;
+    }
+
+    button {
+      border: 0;
+      background: #2c8c68;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #247455;
+    }
+
+    .empty {
+      padding: 20px 0;
+      text-align: center;
+      color: #888;
+    }
+
+    .record {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .record:last-child {
+      border-bottom: 0;
+    }
+
+    .record-title {
+      font-weight: bold;
+    }
+
+    .record-info {
+      margin-top: 5px;
+      color: #888;
+      font-size: 13px;
+    }
+
+    .record-amount {
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .delete-button {
+      width: auto;
+      padding: 7px 10px;
+      background: #999;
+      font-size: 13px;
+    }
+
+    .delete-button:hover {
+      background: #d34b4b;
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 12px;
+      }
+
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full-width {
+        grid-column: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>家庭记账本</h1>
+    <div class="subtitle">记录每一笔收入和支出</div>
+
+    <div class="summary">
+      <div class="summary-card">
+        <span>总收入</span>
+        <strong class="income" id="totalIncome">¥0.00</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>总支出</span>
+        <strong class="expense" id="totalExpense">¥0.00</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>当前结余</span>
+        <strong class="balance" id="balance">¥0.00</strong>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>添加一笔账目</h2>
+
+      <form id="recordForm">
+        <div class="form-grid">
+          <div>
+            <label for="type">类型</label>
+            <select id="type">
+              <option value="expense">支出</option>
+              <option value="income">收入</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="amount">金额（元）</label>
+            <input id="amount" type="number" min="0.01" step="0.01"
+                   placeholder="例如：25.50" required>
+          </div>
+
+          <div>
+            <label for="category">分类</label>
+            <select id="category">
+              <option>餐饮</option>
+              <option>购物</option>
+              <option>交通</option>
+              <option>住房</option>
+              <option>水电燃气</option>
+              <option>医疗</option>
+              <option>教育</option>
+              <option>娱乐</option>
+              <option>工资</option>
+              <option>其他</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="date">日期</label>
+            <input id="date" type="date" required>
+          </div>
+
+          <div class="full-width">
+            <label for="note">说明</label>
+            <input id="note" type="text" maxlength="50"
+                   placeholder="例如：超市买菜">
+          </div>
+
+          <div class="full-width">
+            <button type="submit">保存账目</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>账目记录</h2>
+      <div id="recordList"></div>
+    </div>
+  </div>
+
+  <script>
+    const storageName = "familyBookRecords";
+    let records = JSON.parse(localStorage.getItem(storageName) || "[]");
+
+    const form = document.getElementById("recordForm");
+    const typeInput = document.getElementById("type");
+    const amountInput = document.getElementById("amount");
+    const categoryInput = document.getElementById("category");
+    const dateInput = document.getElementById("date");
+    const noteInput = document.getElementById("note");
+    const recordList = document.getElementById("recordList");
+
+    dateInput.value = new Date().toISOString().slice(0, 10);
+
+    function money(number) {
+      return "¥" + Number(number).toFixed(2);
+    }
+
+    function saveRecords() {
+      localStorage.setItem(storageName, JSON.stringify(records));
+    }
+
+    function showRecords() {
+      let income = 0;
+      let expense = 0;
+
+      records.forEach(function (record) {
+        if (record.type === "income") {
+          income += record.amount;
+        } else {
+          expense += record.amount;
+        }
+      });
+
+      document.getElementById("totalIncome").textContent = money(income);
+      document.getElementById("totalExpense").textContent = money(expense);
+      document.getElementById("balance").textContent =
+        money(income - expense);
+
+      if (records.length === 0) {
+        recordList.innerHTML =
+          '<div class="empty">还没有账目，请先添加一笔。</div>';
+        return;
+      }
+
+      recordList.innerHTML = records.map(function (record, index) {
+        const amountClass =
+          record.type === "income" ? "income" : "expense";
+        const symbol = record.type === "income" ? "+" : "-";
+        const title = record.note || record.category;
+
+        return `
+          <div class="record">
+            <div>
+              <div class="record-title">${safeText(title)}</div>
+              <div class="record-info">
+                ${safeText(record.date)} · ${safeText(record.category)}
+              </div>
+            </div>
+
+            <div class="record-amount ${amountClass}">
+              ${symbol}${money(record.amount)}
+            </div>
+
+            <button class="delete-button"
+                    onclick="deleteRecord(${index})">
+              删除
+            </button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function safeText(text) {
+      const element = document.createElement("div");
+      element.textContent = text;
+      return element.innerHTML;
+    }
+
+    function deleteRecord(index) {
+      if (confirm("确定删除这笔账目吗？")) {
+        records.splice(index, 1);
+        saveRecords();
+        showRecords();
+      }
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const amount = Number(amountInput.value);
+
+      if (!amount || amount <= 0) {
+        alert("请输入正确的金额。");
+        return;
+      }
+
+      records.unshift({
+        type: typeInput.value,
+        amount: amount,
+        category: categoryInput.value,
+        date: dateInput.value,
+        note: noteInput.value.trim()
+      });
+
+      saveRecords();
+      showRecords();
+
+      amountInput.value = "";
+      noteInput.value = "";
+      amountInput.focus();
+    });
+
+    showRecords();
+  </script>
+</body>
+</html>
